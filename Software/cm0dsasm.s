@@ -1,5 +1,5 @@
 ;------------------------------------------------------------------------------------------------------
-; UART -> LCD via AHB
+; UART <-> LCD via AHB
 ; UART receive string: 0Hello / 1ABC
 ; '0' : print string to LCD line 1
 ; '1' : print string to LCD line 2
@@ -9,9 +9,8 @@
                 PRESERVE8
                 THUMB
 
-;-------------------------------------------------------
-; VECTOR TABLE
-;-------------------------------------------------------
+;VECTOR TABLE
+
         AREA    RESET, DATA, READONLY
         EXPORT  __Vectors
 
@@ -20,9 +19,8 @@ __Vectors
         DCD     Reset_Handler
         DCD     0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
-;-------------------------------------------------------
-; AHB ADDRESS MAP
-;-------------------------------------------------------
+
+;ADDRESS MAP
 UART_DATA_ADDR     EQU 0x51000000
 UART_STATUS_ADDR   EQU 0x51000004
 
@@ -33,14 +31,11 @@ TIMER_LOAD_ADDR    EQU 0x52000000
 TIMER_VALUE_ADDR   EQU 0x52000004
 TIMER_CTRL_ADDR    EQU 0x52000008
 
-;-------------------------------------------------------
-; CODE SECTION
-;-------------------------------------------------------
+
         AREA    |.text|, CODE, READONLY
 
-;-------------------------------------------------------
+
 ; Reset Handler
-;-------------------------------------------------------
 Reset_Handler PROC
         EXPORT Reset_Handler
 
@@ -82,9 +77,8 @@ READ_STRING
 
         ENDP
 
-;-------------------------------------------------------
+
 ; UART Get Char (Polling)
-;-------------------------------------------------------
 UART_GetChar PROC
 UG_WAIT
         LDR R1, =UART_STATUS_ADDR
@@ -111,9 +105,7 @@ UP_WAIT
         BX   LR
         ENDP
 
-;-------------------------------------------------------
-; LCD INIT
-;-------------------------------------------------------
+; LCD init
 LCD_Init PROC
         PUSH {LR}
 
@@ -142,9 +134,8 @@ LCD_Init PROC
 
         POP {PC}
         ENDP
-;-------------------------------------------------------
-; LCD WRITE CMD
-;-------------------------------------------------------
+
+; LCD write Command
 LCD_Write_Cmd PROC
         PUSH {R1, LR}
         BL   Delay_Long 
@@ -153,9 +144,8 @@ LCD_Write_Cmd PROC
         POP  {R1, PC}
         ENDP
 
-;-------------------------------------------------------
-; LCD WRITE DATA
-;-------------------------------------------------------
+
+; LCD write data
 LCD_Write_Data PROC
         PUSH {R1, LR}
         BL   Delay_Long 
@@ -166,14 +156,13 @@ LCD_Write_Data PROC
 
 
 
-;-------------------------------------------------------
+
 ; DELAY SHORT (Timer)
-;-------------------------------------------------------
 Delay_Short PROC
         PUSH {R0, R1}
 
         LDR  R1, =TIMER_LOAD_ADDR
-        LDR  R0, =4800          ; ~100us @48MHz
+        LDR  R0, =4800          ; ~100us 
         STR  R0, [R1]
 
         LDR  R1, =TIMER_CTRL_ADDR
@@ -190,14 +179,12 @@ DS_WAIT
         BX   LR
         ENDP
 
-;-------------------------------------------------------
 ; DELAY LONG (Timer)
-;-------------------------------------------------------
 Delay_Long PROC
         PUSH {R0, R1}
 
         LDR  R1, =TIMER_LOAD_ADDR
-        LDR  R0, =48000         ; ~1ms @48MHz
+        LDR  R0, =48000         ; ~1ms 
         STR  R0, [R1]
 
         LDR  R1, =TIMER_CTRL_ADDR
