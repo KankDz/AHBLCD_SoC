@@ -359,7 +359,7 @@ module AHBLITE_SYS(
 ); 
             
 
-    // 2. K?t n?i dây trung gian vào module con
+    // 2. K?t n?i dÃ¢y trung gian vÃ o module con
     AHBLCD uAHBLCD (
         .HCLK       (fclk),
         .HRESETn    (hresetn),
@@ -374,9 +374,9 @@ module AHBLITE_SYS(
         .LCD_RS     (LCD_RS),
         .LCD_RW     (LCD_RW),
         .LCD_E      (LCD_E),
-        .LCD_DB      (LCD_DB) // N?i vào dây 8-bit n?i b?
+        .LCD_DB      (LCD_DB) // N?i vÃ o dÃ¢y 8-bit n?i b?
       );
 
-    // 3. Gán 4 bit cao t? n?i b? ra chân FPGA (t??ng ?ng chân D7..D4 c?a LCD)
+    // 3. GÃ¡n 4 bit cao t? n?i b? ra chÃ¢n FPGA (t??ng ?ng chÃ¢n D7..D4 c?a LCD)
 //    assign LCD_D[7:4] = lcd_data_internal[7:4];
 endmodule
