@@ -1,49 +1,65 @@
-;------------------------------------------------------------------------------------------------------
-; UART <-> LCD via AHB
-; UART receive string: 0Hello / 1ABC
-; '0' : print string to LCD line 1
-; '1' : print string to LCD line 2
-; Delay implemented using AHB Timer
-;------------------------------------------------------------------------------------------------------
+						PRESERVE8
+                		THUMB
 
-                PRESERVE8
-                THUMB
+        				AREA	RESET, DATA, READONLY	  			; First 32 WORDS is VECTOR TABLE
+        				EXPORT 	__Vectors
+					
+__Vectors		    	DCD		0x00003FFC
+        				DCD		Reset_Handler
+        				DCD		0  			
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD 	0
+        				DCD		0
+        				DCD		0
+        				DCD 	0
+        				DCD		0
+        				
+        				; External Interrupts
+						        				
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+        				DCD		0
+	AREA |.text|, CODE, READONLY
 
-;VECTOR TABLE
-
-        AREA    RESET, DATA, READONLY
-        EXPORT  __Vectors
-
-__Vectors
-        DCD     0x00003FFC
-        DCD     Reset_Handler
-        DCD     0,0,0,0,0,0,0,0,0,0,0,0,0,0
-
-
-;ADDRESS MAP
 UART_DATA_ADDR     EQU 0x51000000
 UART_STATUS_ADDR   EQU 0x51000004
 
-LCD_CMD_ADDR       EQU 0x50000000
-LCD_DATA_ADDR      EQU 0x50000004
+LCD_STATUS_ADDR    EQU 0x50000000
+LCD_CMD_ADDR       EQU 0x50000004
+LCD_DATA_ADDR      EQU 0x50000008
 
 TIMER_LOAD_ADDR    EQU 0x52000000
 TIMER_VALUE_ADDR   EQU 0x52000004
 TIMER_CTRL_ADDR    EQU 0x52000008
 
 
-        AREA    |.text|, CODE, READONLY
-
-
-; Reset Handler
 Reset_Handler PROC
         EXPORT Reset_Handler
 
         BL  LCD_Init
 
 MAIN_LOOP
-        BL  UART_GetChar      ; R0 = first char
-		BL  UART_PutChar      ; echo '0'/'1' to PuTTY
+        BL  UART_GetChar     
 
         CMP R0, #'0'
         BEQ LINE1
@@ -64,7 +80,6 @@ LINE2
 
 READ_STRING
         BL  UART_GetChar
-		BL  UART_PutChar      ; echo '0'/'1' to PuTTY
 
         CMP R0, #0x0A
         BEQ MAIN_LOOP
@@ -78,7 +93,6 @@ READ_STRING
         ENDP
 
 
-; UART Get Char (Polling)
 UART_GetChar PROC
 UG_WAIT
         LDR R1, =UART_STATUS_ADDR
@@ -96,7 +110,7 @@ UART_PutChar PROC
 UP_WAIT
         LDR  R1, =UART_STATUS_ADDR
         LDR  R2, [R1]
-        MOVS R3, #2          ; mask bit1
+        MOVS R3, #2          
         ANDS R2, R2, R3
         BNE  UP_WAIT
 
@@ -105,7 +119,7 @@ UP_WAIT
         BX   LR
         ENDP
 
-; LCD init
+
 LCD_Init PROC
         PUSH {LR}
 
@@ -135,7 +149,6 @@ LCD_Init PROC
         POP {PC}
         ENDP
 
-; LCD write Command
 LCD_Write_Cmd PROC
         PUSH {R1, LR}
         BL   Delay_Long 
@@ -144,8 +157,6 @@ LCD_Write_Cmd PROC
         POP  {R1, PC}
         ENDP
 
-
-; LCD write data
 LCD_Write_Data PROC
         PUSH {R1, LR}
         BL   Delay_Long 
@@ -155,14 +166,11 @@ LCD_Write_Data PROC
         ENDP
 
 
-
-
-; DELAY SHORT (Timer)
 Delay_Short PROC
         PUSH {R0, R1}
 
         LDR  R1, =TIMER_LOAD_ADDR
-        LDR  R0, =4800          ; ~100us 
+        LDR  R0, =4800          
         STR  R0, [R1]
 
         LDR  R1, =TIMER_CTRL_ADDR
@@ -179,12 +187,12 @@ DS_WAIT
         BX   LR
         ENDP
 
-; DELAY LONG (Timer)
+
 Delay_Long PROC
         PUSH {R0, R1}
 
         LDR  R1, =TIMER_LOAD_ADDR
-        LDR  R0, =48000         ; ~1ms 
+        LDR  R0, =48000        
         STR  R0, [R1]
 
         LDR  R1, =TIMER_CTRL_ADDR
